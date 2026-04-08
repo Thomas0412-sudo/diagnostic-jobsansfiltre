@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diagnostic Candidat — r/jobsansfiltre</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<style>
+  :root {
+    --bg: #0e0e0e;
+    --surface: #161616;
+    --surface2: #1f1f1f;
+    --border: #2a2a2a;
+    --accent: #c8f04a;
+    --accent2: #7b61ff;
+    --accent3: #ff6b6b;
+    --text: #f0ede6;
+    --muted: #7a7a72;
+    --radius: 12px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 15px; line-height: 1.6; min-height: 100vh; }
+  .app { max-width: 720px; margin: 0 auto; padding: 40px 24px 80px; }
+
+  /* HEADER */
+  .header { margin-bottom: 48px; }
+  .tag { display: inline-block; background: var(--accent); color: #0e0e0e; font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; padding: 4px 12px; border-radius: 4px; margin-bottom: 20px; }
+  h1 { font-family: 'Syne', sans-serif; font-size: clamp(28px, 5vw, 44px); font-weight: 800; line-height: 1.1; letter-spacing: -.02em; margin-bottom: 16px; }
+  h1 span { color: var(--accent); }
+  .subtitle { color: var(--muted); font-size: 15px; max-width: 480px; }
+
+  /* PROGRESS */
+  .progress-bar-wrap { display: flex; align-items: center; gap: 14px; margin-bottom: 40px; }
+  .progress-track { flex: 1; height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--accent); border-radius: 2px; transition: width .4s ease; }
+  .progress-label { font-family: 'Syne', sans-serif; font-size: 12px; color: var(--muted); white-space: nowrap; }
+
+  /* SECTION BADGE */
+  .section-badge { display: inline-flex; align-items: center; gap: 8px; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 6px 12px; margin-bottom: 20px; }
+  .section-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .dot-perso { background: var(--accent2); }
+  .dot-pro   { background: var(--accent); }
+  .dot-motiv { background: var(--accent3); }
+  .section-badge span { font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 600; color: var(--muted); letter-spacing: .06em; text-transform: uppercase; }
+
+  /* QUESTION CARD */
+  .q-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; margin-bottom: 20px; animation: fadeUp .3s ease; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .q-num { font-family: 'Syne', sans-serif; font-size: 11px; color: var(--muted); margin-bottom: 10px; }
+  .q-text { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 600; margin-bottom: 20px; line-height: 1.4; }
+
+  /* OPTIONS */
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option { display: flex; align-items: center; gap: 14px; background: var(--surface2); border: 1.5px solid var(--border); border-radius: 10px; padding: 14px 18px; cursor: pointer; transition: border-color .2s, background .2s; }
+  .option:hover { border-color: var(--muted); }
+  .option.selected { border-color: var(--accent); background: rgba(200,240,74,.06); }
+  .option-letter { width: 28px; height: 28px; border-radius: 6px; background: var(--border); display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 700; color: var(--muted); flex-shrink: 0; transition: background .2s, color .2s; }
+  .option.selected .option-letter { background: var(--accent); color: #0e0e0e; }
+  .option-text { font-size: 14px; color: var(--text); }
+
+  /* TEXTAREA */
+  .q-input { width: 100%; background: var(--surface2); border: 1.5px solid var(--border); border-radius: 10px; padding: 14px 18px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px; resize: vertical; min-height: 90px; transition: border-color .2s; outline: none; }
+  .q-input:focus { border-color: var(--accent); }
+  .q-input::placeholder { color: var(--muted); }
+
+  /* SCALE */
+  .scale-wrap { display: flex; flex-direction: column; gap: 8px; }
+  .scale-row { display: flex; gap: 8px; }
+  .scale-btn { flex: 1; padding: 12px 4px; background: var(--surface2); border: 1.5px solid var(--border); border-radius: 8px; cursor: pointer; font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 600; color: var(--muted); text-align: center; transition: all .2s; }
+  .scale-btn:hover { border-color: var(--muted); color: var(--text); }
+  .scale-btn.selected { border-color: var(--accent); background: rgba(200,240,74,.08); color: var(--accent); }
+  .scale-labels { display: flex; justify-content: space-between; }
+  .scale-label { font-size: 11px; color: var(--muted); }
+
+  /* NAV */
+  .nav { display: flex; gap: 12px; margin-top: 32px; align-items: center; }
+  .btn-prev { padding: 12px 24px; background: transparent; border: 1.5px solid var(--border); border-radius: 8px; color: var(--muted); font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; transition: all .2s; }
+  .btn-prev:hover { border-color: var(--muted); color: var(--text); }
+  .btn-next { padding: 12px 32px; background: var(--accent); border: none; border-radius: 8px; color: #0e0e0e; font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; transition: opacity .2s; letter-spacing: .02em; }
+  .btn-next:disabled { opacity: .35; cursor: not-allowed; }
+  .btn-next:not(:disabled):hover { opacity: .85; }
+
+  /* EMAIL GATE */
+  .email-gate { animation: fadeUp .4s ease; }
+  .email-gate-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 36px; text-align: center; }
+  .email-gate-card h2 { font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 800; margin-bottom: 12px; }
+  .email-gate-card p { color: var(--muted); font-size: 14px; margin-bottom: 28px; line-height: 1.7; }
+  .email-input-wrap { display: flex; gap: 10px; max-width: 440px; margin: 0 auto; }
+  .email-field { flex: 1; background: var(--surface2); border: 1.5px solid var(--border); border-radius: 10px; padding: 14px 18px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px; outline: none; transition: border-color .2s; }
+  .email-field:focus { border-color: var(--accent); }
+  .email-field::placeholder { color: var(--muted); }
+  .btn-submit { padding: 14px 24px; background: var(--accent); border: none; border-radius: 10px; color: #0e0e0e; font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; transition: opacity .2s; }
+  .btn-submit:disabled { opacity: .4; cursor: not-allowed; }
+  .confidential { margin-top: 14px; font-size: 12px; color: var(--muted); }
+
+  /* RESULTS CANDIDAT */
+  .results-public { animation: fadeUp .4s ease; }
+  .results-public h2 { font-family: 'Syne', sans-serif; font-size: 30px; font-weight: 800; margin-bottom: 8px; }
+  .score-global { font-size: 48px; font-weight: 800; font-family: 'Syne', sans-serif; color: var(--accent); margin-bottom: 6px; }
+  .score-caption { color: var(--muted); margin-bottom: 36px; }
+
+  .scores-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-bottom: 28px; }
+  .score-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; text-align: center; }
+  .s-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 12px; font-family: 'Syne', sans-serif; }
+  .score-ring { position: relative; width: 80px; height: 80px; margin: 0 auto 12px; }
+  .score-ring svg { transform: rotate(-90deg); }
+  .ring-bg { fill: none; stroke: var(--border); stroke-width: 6; }
+  .ring-fill { fill: none; stroke-width: 6; stroke-linecap: round; }
+  .score-ring .ring-num { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; }
+  .s-verdict { font-size: 12px; font-weight: 500; }
+
+  /* TRAITS PERSONNALITE */
+  .traits-block { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 20px; }
+  .traits-block h3 { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; margin-bottom: 18px; }
+  .traits-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .trait-pill { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; }
+  .trait-pill .trait-name { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+  .trait-pill .trait-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+  /* TEASER VERROUILLÉ */
+  .locked-block { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; margin-bottom: 20px; position: relative; overflow: hidden; }
+  .locked-overlay { position: absolute; inset: 0; backdrop-filter: blur(6px); background: rgba(14,14,14,.7); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; border-radius: var(--radius); }
+  .locked-icon { font-size: 28px; }
+  .locked-text { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 600; color: var(--muted); text-align: center; }
+  .locked-content { opacity: .15; filter: blur(2px); }
+  .locked-content p { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+
+  /* CTA FIN */
+  .cta-block { background: linear-gradient(135deg, rgba(200,240,74,.08), rgba(123,97,255,.06)); border: 1px solid rgba(200,240,74,.2); border-radius: var(--radius); padding: 28px; margin-top: 24px; text-align: center; }
+  .cta-block h3 { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; margin-bottom: 10px; }
+  .cta-block p { color: var(--muted); font-size: 14px; margin-bottom: 20px; }
+  .btn-cta { display: inline-block; padding: 14px 36px; background: var(--accent); border: none; border-radius: 8px; color: #0e0e0e; font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; text-decoration: none; }
+
+  .btn-restart { display: inline-block; margin-top: 20px; padding: 10px 24px; background: transparent; border: 1.5px solid var(--border); border-radius: 8px; color: var(--muted); font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; transition: all .2s; }
+  .btn-restart:hover { border-color: var(--muted); color: var(--text); }
+
+  @media (max-width: 520px) {
+    .scores-grid { grid-template-columns: 1fr; }
+    .traits-grid { grid-template-columns: 1fr; }
+    .email-input-wrap { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div class="tag">r/jobsansfiltre — Diagnostic</div>
+    <h1>Ton profil.<br><span>Ton vrai poste.</span></h1>
+    <p class="subtitle">20 questions pour analyser ta personnalité, ton parcours et tes motivations — et vérifier si tu vises le bon job.</p>
+  </div>
+  <div id="quiz-area"></div>
+</div>
+
+<script>
+// ============================================================
+// CONFIG EMAILJS — À REMPLIR
+// 1. Crée un compte sur emailjs.com (gratuit)
+// 2. Crée un service email (Gmail par exemple) → copie le Service ID
+// 3. Crée un Template (voir instructions en bas du fichier) → copie le Template ID
+// 4. Copie ta Public Key depuis Account > API Keys
+// ============================================================
+const EMAILJS_SERVICE_ID  = 'service_adiubom';
+const EMAILJS_TEMPLATE_ID = 'template_jg3nxft';
+const EMAILJS_PUBLIC_KEY  = 'SdbcRQeOkpq_4y6ad';
+
+emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+
+// ============================================================
+// QUESTIONS
+// ============================================================
+const SECTIONS = [
+  { id: 'perso', label: 'Personnalité', dot: 'dot-perso', questions: [
+    { id: 'p1', text: 'Dans ton environnement idéal, tu travailles plutôt…', type: 'choice', options: ['Seul, avec autonomie totale', 'En petit groupe (2-5 personnes)', 'En grande équipe avec rôles définis', 'Peu importe si le projet est stimulant'] },
+    { id: 'p2', text: 'Face à un problème complexe, tu…', type: 'choice', options: ['Analyses tout avant d\'agir', 'Testes rapidement pour voir ce qui marche', 'Consultes les autres avant de trancher', 'T\'adaptes selon l\'urgence'] },
+    { id: 'p3', text: 'Qu\'est-ce qui te donne le plus d\'énergie au travail ?', type: 'choice', options: ['Résoudre des problèmes techniques / complexes', 'Convaincre, pitcher, créer une relation', 'Organiser, structurer, faire que tout roule', 'Créer quelque chose de nouveau, innover'] },
+    { id: 'p4', text: 'Ton rapport à la pression et aux deadlines ?', type: 'choice', options: ['Je performe mieux sous pression', 'Je préfère anticiper et éviter les urgences', 'J\'accepte la pression si elle est justifiée', 'Je la gère mais ce n\'est pas mon moteur'] },
+    { id: 'p5', text: 'En 1 mot, comment tu te décrirais dans ta façon de travailler ?', type: 'text', placeholder: 'Ex : rigoureux, créatif, empathique, stratégique...' },
+  ]},
+  { id: 'pro', label: 'Parcours pro', dot: 'dot-pro', questions: [
+    { id: 'r1', text: 'Ton dernier ou actuel intitulé de poste ?', type: 'text', placeholder: 'Ex : chargé de recrutement, développeur, chef de projet...' },
+    { id: 'r2', text: 'Combien d\'années d\'expérience dans ton domaine ?', type: 'choice', options: ['Moins de 2 ans (junior / reconversion)', '2 à 5 ans', '5 à 10 ans', 'Plus de 10 ans'] },
+    { id: 'r3', text: 'Ta compétence principale, celle que tu maîtrises le mieux ?', type: 'text', placeholder: 'Ex : recrutement, gestion de projet, analyse de données...' },
+    { id: 'r4', text: 'Le poste que tu vises, c\'est…', type: 'choice', options: ['Une continuité logique de mon parcours', 'Une évolution vers plus de responsabilités', 'Un pivot vers un nouveau secteur / métier', 'Je ne sais pas encore'] },
+    { id: 'r5', text: 'Où bloques-tu actuellement dans ta recherche ?', type: 'choice', options: ['Peu ou pas de réponses à mes candidatures', 'J\'arrive en entretien mais ça ne passe pas', 'Ça avance, mais c\'est long', 'Je commence tout juste'] },
+  ]},
+  { id: 'motiv', label: 'Motivations', dot: 'dot-motiv', questions: [
+    { id: 'm1', text: 'Ce qui compte le plus pour toi dans un job ?', type: 'choice', options: ['Le salaire et la stabilité financière', 'L\'évolution rapide et les responsabilités', 'L\'équilibre vie pro / perso et la flexibilité', 'Le sens, l\'impact, contribuer à quelque chose'] },
+    { id: 'm2', text: 'Accepterais-tu moins de salaire pour un job vraiment épanouissant ?', type: 'scale', min: 'Jamais', max: 'Totalement', steps: 5 },
+    { id: 'm3', text: 'Dans 3 ans, tu te vois…', type: 'choice', options: ['Expert reconnu dans mon domaine actuel', 'Manager avec une équipe à piloter', 'Entrepreneur ou freelance', 'Je ne sais pas encore, j\'explore'] },
+    { id: 'm4', text: 'Le secteur d\'activité de l\'entreprise, c\'est important ?', type: 'choice', options: ['Oui, beaucoup — je veux du sens dans la mission', 'Un peu — je préfère certains secteurs mais je suis flexible', 'Non — c\'est le poste et l\'équipe qui comptent', 'Je veux changer de secteur par rapport à aujourd\'hui'] },
+    { id: 'm5', text: 'Ce qui te ferait refuser une offre, même bien payée ?', type: 'text', placeholder: 'Ex : pas de télétravail, mauvaise ambiance, aucune évolution...' },
+  ]},
+];
+
+const ALL_Q = SECTIONS.flatMap(s => s.questions.map(q => ({ ...q, section: s })));
+const TOTAL = ALL_Q.length;
+let current = 0;
+const answers = {};
+
+// ============================================================
+// SCORING
+// ============================================================
+function computeScores() {
+  const r4 = answers['r4'] ?? 0;
+  const r2 = answers['r2'] ?? 1;
+  const r5 = answers['r5'] ?? 2;
+  const p1 = answers['p1'] ?? 0;
+  const p2 = answers['p2'] ?? 0;
+  const p3 = answers['p3'] ?? 0;
+  const p4 = answers['p4'] ?? 0;
+  const m1 = answers['m1'] ?? 0;
+  const m2 = answers['m2'] ?? 3;
+  const m3 = answers['m3'] ?? 0;
+  const m4 = answers['m4'] ?? 1;
+
+  let perso = 60, pro = 60, motiv = 60;
+
+  // Personnalité vs type de poste visé
+  if (r4 === 0) perso = 78 + (p1 === 0 ? 8 : p1 === 1 ? 5 : 3) + (p4 === 2 || p4 === 3 ? 8 : 3);
+  else if (r4 === 1) perso = 68 + (p1 === 2 || p1 === 1 ? 12 : 4) + (p3 === 1 || p3 === 2 ? 10 : 3) + (p2 === 2 ? 8 : 0);
+  else if (r4 === 2) perso = 52 + (p2 === 1 ? 14 : 6) + (p4 === 0 ? 12 : 4) + (m2 >= 3 ? 10 : 4);
+  else perso = 55 + (p2 === 3 ? 10 : 5);
+  perso = Math.min(perso, 97);
+
+  // Parcours : réalisme du projet
+  if (r4 === 0) pro = 82 + (r2 >= 1 ? 8 : 2) - (r5 === 0 ? 10 : 0);
+  else if (r4 === 1) pro = 65 + (r2 === 1 ? 10 : r2 === 2 ? 14 : r2 === 0 ? 2 : 8) - (r5 === 0 ? 8 : 0);
+  else if (r4 === 2) pro = 48 + (r2 >= 1 ? 10 : 4) + (m2 >= 3 ? 8 : 2) - (r5 === 0 ? 6 : 0);
+  else pro = 50 + (r2 >= 1 ? 8 : 3);
+  pro = Math.min(Math.max(pro, 30), 96);
+
+  // Motivations : cohérence valeurs / projet
+  if (r4 === 1 && m3 === 1) motiv = 88 + (m1 === 1 ? 6 : 0);
+  else if (r4 === 0 && m1 === 0) motiv = 83 + (m4 <= 1 ? 5 : 0);
+  else if (r4 === 2 && m2 >= 3) motiv = 75 + (m3 === 2 ? 10 : 3);
+  else if (m3 === 3 || r4 === 3) motiv = 52 + (m2 * 5);
+  else motiv = 65 + (m1 >= 2 ? 10 : 4) + (m3 <= 1 ? 8 : 0);
+  motiv = Math.min(Math.max(motiv, 38), 96);
+
+  return { perso: Math.round(perso), pro: Math.round(pro), motiv: Math.round(motiv), avg: Math.round((perso + pro + motiv) / 3) };
+}
+
+// ============================================================
+// ANALYSE COMPLÈTE (visible uniquement par toi dans l'email)
+// ============================================================
+function buildFullReport(scores, candidateEmail) {
+  const r4 = answers['r4'] ?? 3;
+  const r2 = answers['r2'] ?? 0;
+  const r5 = answers['r5'] ?? 3;
+  const p3 = answers['p3'] ?? 0;
+  const m3 = answers['m3'] ?? 3;
+  const m1 = answers['m1'] ?? 0;
+  const m2 = answers['m2'] ?? 3;
+  const m4 = answers['m4'] ?? 1;
+
+  const posteVise = ['Continuité de parcours','Évolution / promotion','Pivot / reconversion','Non défini'][r4];
+  const seniorite = ['Junior (< 2 ans)','Confirmé (2-5 ans)','Senior (5-10 ans)','Expert (10+ ans)'][r2];
+  const blocage   = ['Peu de réponses (CV/ciblage)','Echecs en entretien','Recherche longue','Début de recherche'][r5];
+
+  // Postes recommandés selon profil
+  const postesMap = {
+    // [p3][m3]
+    '0_0': ['Consultant technique senior','Architecte de solutions','Expert métier / référent technique','Analyste data ou BI'],
+    '0_1': ['Team lead technique','CTO / DSI en scale-up','Responsable R&D','Head of Engineering'],
+    '0_2': ['Freelance / consultant indépendant','CTO fondateur','Expert en cabinet conseil','Formateur technique'],
+    '0_3': ['Développeur senior','Data scientist','Chargé d\'études','Auditeur IT'],
+    '1_0': ['Business Developer senior','Key Account Manager','Consultant avant-vente','Responsable grands comptes'],
+    '1_1': ['Directeur commercial','Head of Sales','VP Sales','Responsable partenariats'],
+    '1_2': ['Entrepreneur / fondateur','Consultant indépendant','Coach commercial','Freelance business'],
+    '1_3': ['Commercial B2B','Account Executive','Chargé de développement','Business Analyst'],
+    '2_0': ['Chef de projet senior','PMO','Responsable opérations','Directeur de programme'],
+    '2_1': ['Directeur de projet','Head of Operations','COO','Responsable transformation'],
+    '2_2': ['Consultant organisation','Indépendant en gestion de projet','Formateur Agile/PMP','Coach organisationnel'],
+    '2_3': ['Chef de projet junior/confirmé','Coordinateur','Assistant chef de projet','Office Manager'],
+    '3_0': ['Designer UX/UI','Directeur créatif','Responsable innovation','Product Manager'],
+    '3_1': ['Head of Product','CPO','Directeur marketing','Creative director'],
+    '3_2': ['Entrepreneur créatif','Freelance design/créa','Fondateur startup','Consultant UX'],
+    '3_3': ['UX Designer','Content Strategist','Chef de produit','Responsable communication'],
+  };
+  const key = `${p3}_${m3}`;
+  const postes = postesMap[key] || ['Consultant généraliste','Chef de projet','Business Developer','Chargé de mission'];
+
+  // Secteurs recommandés selon m4 et profil
+  const secteursMap = {
+    0: ['ESN / Conseil','Grande entreprise CAC40','Banque / Assurance','Secteur public'],
+    1: ['Start-up / Scale-up','ETI en croissance','Secteur de la transition','PME dynamique'],
+    2: ['Remote-first / Tech','Secteur créatif','Association / ONG','Éducation / formation'],
+    3: ['Impact / RSE','Santé / MedTech','GreenTech / ClimateTech','EdTech / NGO'],
+  };
+  const secteurs = secteursMap[m4] || secteursMap[1];
+
+  // Points de vigilance
+  const vigilances = [];
+  if (r4 === 2) vigilances.push('Projet de reconversion à mieux argumenter — construire un récit de transition convaincant');
+  if (r5 === 0) vigilances.push('CV probablement non optimisé pour les ATS ou ciblage trop large — audit en priorité');
+  if (r5 === 1) vigilances.push('Profil arrive en entretien mais ne convainc pas — travail sur le pitch et la posture');
+  if (m3 === 3 || r4 === 3) vigilances.push('Projet professionnel flou — risque de manque de conviction face aux recruteurs');
+  if (scores.motiv < 60) vigilances.push('Motivations peu alignées avec le poste visé — creuser les vrais moteurs');
+  if (scores.pro < 55) vigilances.push('Profil peut paraître trop ambitieux ou décalé pour le poste visé — vérifier le réalisme');
+  if (!vigilances.length) vigilances.push('Profil cohérent — focus sur l\'exécution de la candidature');
+
+  // Prochaines étapes recommandées (PRIVÉ)
+  const etapes = [];
+  if (r5 === 0) etapes.push('PRIORITÉ 1 : Refonte CV avec ciblage ATS + optimisation accroche');
+  if (r5 === 1) etapes.push('PRIORITÉ 1 : Préparation entretien — méthode STAR + simulation');
+  if (r4 === 2) etapes.push('PRIORITÉ 1 : Session repositionnement — construire le récit de reconversion');
+  if (m3 === 3 || r4 === 3) etapes.push('SESSION URGENTE : Clarification du projet pro avant toute candidature');
+  etapes.push('Audit LinkedIn : cohérence profil / poste visé');
+  etapes.push('Travail sur la lettre de motivation ou message de candidature spontanée');
+  if (scores.avg >= 75) etapes.push('Profil solide : accélérer le volume de candidatures ciblées');
+
+  return {
+    candidateEmail,
+    posteVise, seniorite, blocage,
+    posteActuel: answers['r1'] || 'Non renseigné',
+    competence: answers['r3'] || 'Non renseigné',
+    motCle: answers['p5'] || 'Non renseigné',
+    dealbreaker: answers['m5'] || 'Non renseigné',
+    scores,
+    postes,
+    secteurs,
+    vigilances,
+    etapes,
+  };
+}
+
+// ============================================================
+// TRAITS DE PERSONNALITÉ (visible par le candidat — version générale)
+// ============================================================
+function getTraits(scores) {
+  const p1 = answers['p1'] ?? 0;
+  const p2 = answers['p2'] ?? 0;
+  const p3 = answers['p3'] ?? 0;
+  const p4 = answers['p4'] ?? 0;
+
+  const modeMap   = ['Autonome & indépendant','Collaboratif proche','Collectif structuré','Adaptable'][p1];
+  const styleMap  = ['Analytique & méthodique','Pragmatique & expérimental','Consultatif & consensuel','Flexible & situationnel'][p2];
+  const energieMap= ['Résolveur de problèmes','Influenceur & persuasif','Organisateur & structurant','Créatif & innovateur'][p3];
+  const pressionMap = ['Performeur sous pression','Anticipateur serein','Équilibré & adaptatif','Endurance tranquille'][p4];
+
+  return [
+    { name: modeMap, desc: 'Ton mode de travail préféré' },
+    { name: styleMap, desc: 'Ton style de décision' },
+    { name: energieMap, desc: 'Ce qui te donne de l\'énergie' },
+    { name: pressionMap, desc: 'Ton rapport à la pression' },
+  ];
+}
+
+// ============================================================
+// RENDU QUIZ
+// ============================================================
+function render() {
+  if (current >= TOTAL) { renderEmailGate(); return; }
+  const q = ALL_Q[current];
+  const sec = q.section;
+  const answered = answers[q.id] !== undefined;
+  const area = document.getElementById('quiz-area');
+
+  area.innerHTML = `
+    <div class="progress-bar-wrap">
+      <div class="progress-track"><div class="progress-fill" style="width:${Math.round(current/TOTAL*100)}%"></div></div>
+      <span class="progress-label">${current + 1} / ${TOTAL}</span>
+    </div>
+    <div class="section-badge">
+      <div class="section-dot ${sec.dot}"></div>
+      <span>${sec.label}</span>
+    </div>
+    <div class="q-card">
+      <div class="q-num">Question ${current + 1}</div>
+      <div class="q-text">${q.text}</div>
+      ${renderInput(q)}
+    </div>
+    <div class="nav">
+      ${current > 0 ? '<button class="btn-prev" onclick="goBack()">← Retour</button>' : ''}
+      <button class="btn-next" id="btn-next" onclick="goNext()" ${answered ? '' : 'disabled'}>
+        ${current === TOTAL - 1 ? 'Voir mes résultats →' : 'Suivant →'}
+      </button>
+    </div>`;
+
+  if (q.type === 'text' && answers[q.id]) document.getElementById('ta-' + q.id).value = answers[q.id];
+  if (q.type === 'scale' && answers[q.id] !== undefined) {
+    const btn = document.querySelector(`.scale-btn[data-val="${answers[q.id]}"]`);
+    if (btn) btn.classList.add('selected');
+  }
+}
+
+function renderInput(q) {
+  if (q.type === 'choice') {
+    return `<div class="options">${q.options.map((o,i) => `
+      <div class="option ${answers[q.id]===i?'selected':''}" onclick="select('${q.id}',${i})">
+        <div class="option-letter">${String.fromCharCode(65+i)}</div>
+        <div class="option-text">${o}</div>
+      </div>`).join('')}</div>`;
+  }
+  if (q.type === 'text') return `<textarea class="q-input" id="ta-${q.id}" placeholder="${q.placeholder}" oninput="textInput('${q.id}',this.value)"></textarea>`;
+  if (q.type === 'scale') {
+    return `<div class="scale-wrap">
+      <div class="scale-row">${Array.from({length:q.steps},(_,i)=>i+1).map(v=>`<button class="scale-btn ${answers[q.id]===v?'selected':''}" data-val="${v}" onclick="selectScale('${q.id}',${v})">${v}</button>`).join('')}</div>
+      <div class="scale-labels"><span class="scale-label">${q.min}</span><span class="scale-label">${q.max}</span></div>
+    </div>`;
+  }
+}
+
+function select(id, val) { answers[id] = val; render(); }
+function selectScale(id, val) { answers[id] = val; render(); }
+function textInput(id, val) { answers[id] = val; document.getElementById('btn-next').disabled = !val.trim(); }
+function goNext() { current++; render(); window.scrollTo(0,0); }
+function goBack() { current--; render(); window.scrollTo(0,0); }
+
+// ============================================================
+// EMAIL GATE
+// ============================================================
+function renderEmailGate() {
+  document.getElementById('quiz-area').innerHTML = `
+    <div class="email-gate">
+      <div class="email-gate-card">
+        <h2>Ton diagnostic est prêt !</h2>
+        <p>Entre ton email pour accéder à tes résultats.<br>Tu recevras aussi un résumé de ton profil.</p>
+        <div class="email-input-wrap">
+          <input class="email-field" id="candidate-email" type="email" placeholder="ton@email.fr" oninput="checkEmail()">
+          <button class="btn-submit" id="btn-submit" onclick="submitAndShow()" disabled>Voir mes résultats</button>
+        </div>
+        <p class="confidential">Ton email ne sera jamais partagé ni utilisé à des fins commerciales.</p>
+      </div>
+    </div>`;
+}
+
+function checkEmail() {
+  const val = document.getElementById('candidate-email').value;
+  document.getElementById('btn-submit').disabled = !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
+}
+
+async function submitAndShow() {
+  const email = document.getElementById('candidate-email').value;
+  document.getElementById('btn-submit').disabled = true;
+  document.getElementById('btn-submit').textContent = 'Envoi...';
+
+  const scores = computeScores();
+  const report = buildFullReport(scores, email);
+
+  // Construction de l'email complet pour toi
+  const emailBody = `
+NOUVEAU DIAGNOSTIC REÇU — r/jobsansfiltre
+==========================================
+Email candidat : ${email}
+Date : ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR')}
+
+SCORES
+------
+Personnalité : ${scores.perso}/100
+Parcours pro : ${scores.pro}/100
+Motivations  : ${scores.motiv}/100
+Score global : ${scores.avg}/100
+
+PROFIL DÉCLARÉ
+--------------
+Poste actuel / dernier : ${report.posteActuel}
+Compétence principale  : ${report.competence}
+Mot clé perso          : ${report.motCle}
+Type de poste visé     : ${report.posteVise}
+Séniorité              : ${report.seniorite}
+Blocage actuel         : ${report.blocage}
+Priorité motivationnelle : ${['Salaire/stabilité','Évolution/responsabilités','Équilibre/flexibilité','Sens/impact'][answers['m1']??0]}
+Vision 3 ans           : ${['Expert dans son domaine','Manager','Entrepreneur/freelance','Flou / exploration'][answers['m3']??3]}
+Deal-breaker déclaré   : ${report.dealbreaker}
+
+POSTES RECOMMANDÉS (correspondance profil)
+------------------------------------------
+${report.postes.map((p,i)=>`${i+1}. ${p}`).join('\n')}
+
+SECTEURS PRIORITAIRES
+---------------------
+${report.secteurs.map((s,i)=>`${i+1}. ${s}`).join('\n')}
+
+POINTS DE VIGILANCE
+-------------------
+${report.vigilances.map(v=>`⚠ ${v}`).join('\n')}
+
+PROCHAINES ÉTAPES RECOMMANDÉES (usage privé)
+--------------------------------------------
+${report.etapes.map((e,i)=>`${i+1}. ${e}`).join('\n')}
+
+--
+Envoyé automatiquement depuis le diagnostic r/jobsansfiltre
+`;
+
+  try {
+    await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+      to_email: 'clayt8595@gmail.com',
+      candidate_email: email,
+      subject: `Nouveau diagnostic — ${email}`,
+      message: emailBody,
+    });
+  } catch(e) {
+    console.warn('EmailJS error (check config):', e);
+  }
+
+  renderResults(scores, email);
+}
+
+// ============================================================
+// RÉSULTATS CANDIDAT (version publique — sans les détails privés)
+// ============================================================
+function renderResults(scores, email) {
+  const traits = getTraits(scores);
+  const avg = scores.avg;
+  const verdictLabel = avg >= 78 ? 'Profil cohérent — tu vises le bon cap'
+    : avg >= 60 ? 'Profil à affiner — quelques axes à clarifier'
+    : 'Repositionnement à envisager';
+  const verdictDesc = avg >= 78
+    ? 'Ta personnalité, ton parcours et tes motivations sont bien alignés. Le travail maintenant, c\'est sur ta stratégie de candidature et la mise en valeur de ton profil.'
+    : avg >= 60
+    ? 'Il y a un bon potentiel mais quelques zones floues dans ton positionnement. Ce n\'est pas un problème de compétences — c\'est souvent un manque de clarté dans le discours que les recruteurs perçoivent.'
+    : 'Les signaux indiquent que le poste visé ne correspond peut-être pas encore à ton profil actuel. Ce n\'est pas un échec — c\'est une information précieuse pour recentrer ta recherche.';
+
+  const scoreCards = [
+    { label: 'Personnalité', val: scores.perso, color: '#7b61ff' },
+    { label: 'Parcours pro', val: scores.pro, color: '#c8f04a' },
+    { label: 'Motivations', val: scores.motiv, color: '#ff6b6b' },
+  ].map(s => {
+    const r = 32; const circ = 2 * Math.PI * r;
+    const offset = circ - (s.val / 100) * circ;
+    const lbl = s.val >= 75 ? 'Solide' : s.val >= 60 ? 'À affiner' : 'Attention';
+    return `<div class="score-card">
+      <div class="s-label">${s.label}</div>
+      <div class="score-ring">
+        <svg width="80" height="80" viewBox="0 0 80 80"><circle class="ring-bg" cx="40" cy="40" r="${r}"/><circle class="ring-fill" cx="40" cy="40" r="${r}" stroke="${s.color}" stroke-dasharray="${circ.toFixed(1)}" stroke-dashoffset="${offset.toFixed(1)}"/></svg>
+        <div class="ring-num" style="color:${s.color}">${s.val}</div>
+      </div>
+      <div class="s-verdict" style="color:${s.color}">${lbl}</div>
+    </div>`;
+  }).join('');
+
+  const traitsHtml = traits.map(t => `
+    <div class="trait-pill">
+      <div class="trait-name">${t.name}</div>
+      <div class="trait-desc">${t.desc}</div>
+    </div>`).join('');
+
+  // Bloc verrouillé (postes précis + prochaines étapes)
+  const lockedHtml = `
+    <div class="locked-block">
+      <div class="locked-content">
+        <p>1. Consultant technique senior &nbsp;•&nbsp; 92% de match</p>
+        <p>2. Business Developer senior &nbsp;•&nbsp; 87% de match</p>
+        <p>3. Chef de projet confirmé &nbsp;•&nbsp; 81% de match</p>
+        <p>Secteurs recommandés : Tech, Conseil, Scale-up</p>
+      </div>
+      <div class="locked-overlay">
+        <div class="locked-icon">🔒</div>
+        <div class="locked-text">Postes précis & secteurs recommandés<br>transmis à ton conseiller</div>
+      </div>
+    </div>`;
+
+  document.getElementById('quiz-area').innerHTML = `
+    <div class="results-public">
+      <div class="score-global">${avg}<span style="font-size:28px;color:var(--muted)">/100</span></div>
+      <div class="score-caption">${verdictLabel}</div>
+      <div class="scores-grid">${scoreCards}</div>
+
+      <div class="traits-block">
+        <h3>Tes grands traits de personnalité</h3>
+        <div class="traits-grid">${traitsHtml}</div>
+      </div>
+
+      <div class="traits-block">
+        <h3>Ce que ça signifie pour ta recherche</h3>
+        <p style="color:var(--muted);font-size:14px;line-height:1.7">${verdictDesc}</p>
+      </div>
+
+      ${lockedHtml}
+
+      <div class="cta-block">
+        <h3>La suite, c'est par ici</h3>
+        <p>Ton profil complet (postes précis, secteurs, prochaines étapes) a été transmis à ton conseiller r/jobsansfiltre. Il te contacte pour en discuter.</p>
+        <a class="btn-cta" href="https://reddit.com/r/jobsansfiltre" target="_blank">Rejoindre la communauté →</a>
+      </div>
+
+      <div style="text-align:center;margin-top:20px">
+        <button class="btn-restart" onclick="restart()">← Recommencer le diagnostic</button>
+      </div>
+    </div>`;
+}
+
+function restart() { current = 0; Object.keys(answers).forEach(k => delete answers[k]); render(); window.scrollTo(0,0); }
+
+render();
+</script>
+
+<!--
+=================================================================
+INSTRUCTIONS EMAILJS — 5 minutes pour configurer
+
+1. Va sur https://www.emailjs.com et crée un compte gratuit
+   (200 emails/mois gratuits, largement suffisant pour démarrer)
+
+2. Dans Dashboard > Email Services > Add New Service
+   → Choisis Gmail (ou autre)
+   → Connecte ton compte Google
+   → Note le SERVICE ID (ex: service_abc123)
+
+3. Dans Email Templates > Create New Template
+   → Subject : {{subject}}
+   → Content : {{message}}
+   → To email : laisse vide (on le passe en paramètre)
+   → Note le TEMPLATE ID (ex: template_xyz456)
+   ⚠ Important : dans les paramètres du template,
+     active "Send to" = {{to_email}}
+
+4. Dans Account > API Keys
+   → Copie ta Public Key
+
+5. Dans ce fichier, remplace :
+   - EMAILJS_SERVICE_ID  → ton Service ID
+   - EMAILJS_TEMPLATE_ID → ton Template ID
+   - EMAILJS_PUBLIC_KEY  → ta Public Key
+   - 'TON_EMAIL@gmail.com' → ton adresse email personnelle
+
+C'est tout ! Teste en faisant le quiz jusqu'au bout.
+=================================================================
+-->
+</body>
+</html>
